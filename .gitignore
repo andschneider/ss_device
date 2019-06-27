@@ -2,3 +2,5 @@ venv/
 lib/
 wifi.txt
 url.txt
+
+credentials\.txt

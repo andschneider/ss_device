@@ -13,30 +13,41 @@ Sensor: [Adafruit STEMMA Soil Sensor](https://www.adafruit.com/product/4026)
  - [BusDevice](https://github.com/adafruit/Adafruit_CircuitPython_BusDevice)
 
 ## Installing CircuitPython and working with the board
-1) First thing is to flash the latest firmware of CircuitPython, which can be found [here](https://github.com/adafruit/circuitpython/releases/latest). I would recommend following the guide from Adafruit, [here](https://learn.adafruit.com/welcome-to-circuitpython/circuitpython-for-esp8266). 
+1) First thing is to flash the version 3.1.1 of CircuitPython, which can be found [here](https://github.com/adafruit/circuitpython/releases/tag/3.1.1). Make sure to download the version for the Feather HUZZAH, *adafruit-circuitpython-feather_huzzah-3.1.1.bin*. I would recommend following the guide from Adafruit, [here](https://learn.adafruit.com/welcome-to-circuitpython/circuitpython-for-esp8266). 
+
+__Note__: CircuitPython is now on version 4+. In version 4.x support for ESP8266 boards was dropped, therefore this project is sticking with version 3.1.1.
 
 2) Next, make sure you have `ampy`[2] installed and connect to the board like so:
+    
     ```sh
     $ ampy --port /dev/ttyUSB0 ls
     ```
+
     This should show you the files that are currently loaded on the board. After a fresh firmware flash you should only have `boot.py`.
 
 3) Now it is time to copy over the dependencies. First, create a directory called `lib` on the board:
+    
     ```sh
     $ ampy --port /dev/ttyUSB0 mkdir lib
     ```
+    
     Next, copy over the two libraries from Adafruit:
+    
     ```sh
-    $ ampy --port /dev/ttyUSB0 put adafruit_seesaw /lib
-    $ ampy --port /dev/ttyUSB0 put adafruit_bus_device /lib
+    $ ampy --port /dev/ttyUSB0 put ./dependencies/adafruit_seesaw /lib/adafruit_seesaw
+    $ ampy --port /dev/ttyUSB0 put ./dependencies/adafruit_bus_device /lib/adafruit_bus_device
     ```
+
 4) Test the sensor is working by running the `test_sensor.py` file:
+
     ```sh
     $ ampy --port /dev/ttyUSB0 run --no-output test_sensor.py
     ```
+
     Using the `--no-output` flag will run the script in the background on the board. You will have to connect to the REPL to see it’s output. I use `picocom`[3], which can be installed through apt, like so `sudo apt install picocom`. Now, let’s see the REPL:
+    
     ```sh
-    $ picocom /tty/USB0 -b115200
+    $ picocom /dev/ttyUSB0 -b115200
     ```
 
 ## Connecting to WiFI and reading sensor data
@@ -46,17 +57,22 @@ Sensor: [Adafruit STEMMA Soil Sensor](https://www.adafruit.com/product/4026)
     ssid
     password
     ```
+
     Now, copy over the `wifi.txt` and `boot.py` to the board using ampy:
+    
     ```sh
     $ ampy --port /tty/USB0 put wifi.txt
     $ ampy --port /tty/USB0 put boot.py
     ```
+    
     Next, connect to the REPL using `picocom` and then reset the board. You should see a connection readout. The `boot.py` is ran on every start or reset of the board, so it will now connect to your WiFi automatically. 
 
 2) Finally, copy over the `main.py` file. This file gets ran on every start or reset, but after the `boot.py` file.
+    
     ```sh
     $ ampy --port /tty/USB0 put main.py
     ```
+    
     This script will read the sensor, create a http server on your local network, and print the sensor data to the server. Simply go the IP address that is printed to the REPL. Every page refresh gets new data from the sensor. 
 
 

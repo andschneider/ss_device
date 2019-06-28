@@ -5,7 +5,7 @@ import busio
 import machine
 from adafruit_seesaw.seesaw import Seesaw
 from board import SCL, SDA
-from api_requests import get_auth
+from api_requests import get_auth, post_data
 
 
 def get_sensor(seesaw):
@@ -35,7 +35,7 @@ def main():
     ss = Seesaw(i2c_bus, addr=0x36)
 
     # get the url to hit and api credentials
-    auth_url = get_post_url()
+    url = get_post_url()
     api_user, api_pass = get_api_credentials()
 
     while True:
@@ -44,14 +44,10 @@ def main():
         data = {"sensor_id": 2, "temperature": temperature, "moisture": moisture}
 
         # login to api
-        token = get_auth(
-            auth_url, credentials={"username": api_user, "password": api_pass}
-        )
-        print(token)
+        token = get_auth(url, credentials={"username": api_user, "password": api_pass})
 
         # send sensor data
-        # TODO write this
-        # http_post(data_url, token, data)
+        post_data(url, token, data)
 
         # sleep until next post
         time.sleep(60)

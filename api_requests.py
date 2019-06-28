@@ -28,6 +28,8 @@ def get_auth(url, credentials):
         while True:
             data = str(s.recv(1024), "utf8")
             message += data.strip("\n")
+            if "does not exist" in data:
+                raise ValueError
             # stop at the end of the response json
             if data[-1] == "}":
                 # TODO what if it gets back a bad response?
@@ -42,7 +44,8 @@ def get_auth(url, credentials):
                 return "Bearer " + token
             # TODO action based on other response codes
     except:
-        print("failed to post data")
+        print("failed to authenticate")
+        return False
     finally:
         s.close()
 
@@ -72,7 +75,6 @@ def post_data(url, token, data):
         while True:
             data = str(s.recv(1024), "utf8")
             message += data
-
             if "errors" in data:
                 raise ValueError
             if data[-1] == "}":

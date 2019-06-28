@@ -47,7 +47,8 @@ def main():
         token = get_auth(url, credentials={"username": api_user, "password": api_pass})
 
         # send sensor data
-        post_data(url, token, data)
+        if token:
+            post_data(url, token, data)
 
         # sleep until next post
         time.sleep(60)

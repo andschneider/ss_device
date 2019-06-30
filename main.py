@@ -51,7 +51,7 @@ def main():
             post_data(url, token, data)
 
         # sleep until next post
-        time.sleep(60)
+        time.sleep(60 * 3)
 
 
 main()

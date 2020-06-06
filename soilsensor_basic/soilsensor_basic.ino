@@ -3,18 +3,20 @@
 Adafruit_seesaw ss;
 
 #include "wifi.h"
+#include "mqtt_settings.h"
 
 MqttClient mqttClient(wifiClient);
 
-const char broker[] = "192.168.1.189";
-int        port     = 1883;
-const char topic[]  = "arduino/test";
+// mqtt settings
+char* broker = BROKER;
+int   port = PORT;
+char* topic = TOPIC;
 
 // sensor settings
-const int capLen = 60;
-uint16_t capVals[capLen];
 char* sensorId = "sensor1";
-const int loopDelay = 2000;  // milliseconds
+const int capLen = 60;  // number of readings in average
+const int loopDelay = 500;  // milliseconds
+// time between messages = capLen * loopDelay
 
 void connectMqtt(char* clientId) {
   mqttClient.setId(clientId);
@@ -49,15 +51,6 @@ void setup() {
   }
 }
 
-uint16_t capAvg(uint16_t vals[]) {
-  uint16_t sum = 0;
-  for (int i = 0; i < capLen; i++) {
-    sum += vals[i];
-  }
-  uint16_t avg = sum / capLen;
-  return avg;
-}
-
 void sendMessage(uint16_t avg, float temp) {
   // send a json like message to the broker
   // {moisture: 0, temperature: 0.0, sid: "1"}
@@ -74,6 +67,7 @@ void sendMessage(uint16_t avg, float temp) {
 }
 
 int count = 0;
+uint16_t capacitanceSum = 0;
 
 void loop() {
   mqttClient.poll();  // keep connection to broker alive
@@ -81,14 +75,15 @@ void loop() {
   uint16_t capread = ss.touchRead(0);
 
   if (count == capLen) {
-    uint16_t avg = capAvg(capVals);
+    uint16_t avg = capacitanceSum / capLen;
     float tempC = ss.getTemp();
     Serial.print("Temperature: "); Serial.print(tempC); Serial.println("*C");
-    Serial.print("Avgerage Capactitance: "); Serial.println(avg);
+    Serial.print("Avgerage Capacitance: "); Serial.println(avg);
     sendMessage(avg, tempC);
     count = 0;
+    capacitanceSum = 0;
   }
-  capVals[count] = capread;
+  capacitanceSum += capread;
 
   delay(loopDelay);
   count += 1;

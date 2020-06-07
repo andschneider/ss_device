@@ -4,3 +4,5 @@ wifi.txt
 url.txt
 
 credentials\.txt
+
+wifi_creds.h

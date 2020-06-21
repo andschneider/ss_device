@@ -53,15 +53,15 @@ void setup() {
 
 void sendMessage(uint16_t avg, float temp) {
   // send a json like message to the broker
-  // {moisture: 0, temperature: 0.0, sid: "1"}
+  // {"moisture": 0, "temperature": 0.0, "sid": "1"}
   mqttClient.beginMessage(topic);
-  mqttClient.print("{moisture: ");
+  mqttClient.print("{\"moisture\": ");
   mqttClient.print(avg);
-  mqttClient.print(", temperature: ");
+  mqttClient.print(", \"temperature\": ");
   mqttClient.print(temp);
-  mqttClient.print(", sid: ");
+  mqttClient.print(", \"sid\": \"");
   mqttClient.print(sensorId);
-  mqttClient.print("}");
+  mqttClient.print("\"}");
   mqttClient.endMessage();
   Serial.println("message sent");
 }
